@@ -1,0 +1,12 @@
+sudo: required
+language: python
+python:
+  - 3.5.2
+install:
+  - pip install -r requirements.txt
+  - export PYTHONPATH=$(pwd)/term/
+script:
+  - coverage run -m --branch --source=src --omit=src/tests/* unittest discover -s src/tests
+  - coverage report -m
+after_success:
+  - coveralls
