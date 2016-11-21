@@ -6,8 +6,13 @@ from rpi_controller import RPIController
 
 rpi = RPIController()
 
-s = input('Laitetaanko valo paalle? ')
-if s:
-    rpi.turnLightOn()
-else:
-    rpi.turnLightOff()
+try:
+    while True:
+        s = input('Laitetaanko valo paalle? ')
+        if s:
+            rpi.turnLightOn()
+        else:
+            rpi.turnLightOff()
+
+except KeyboardInterrupt:
+    rpi.turnAllOff()

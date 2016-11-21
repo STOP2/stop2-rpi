@@ -14,3 +14,6 @@ class RPIController:
     def turnLightOff(self):
         print("Valo poies")
         GPIO.output(18, 0)
+
+    def turnAllOff(self):
+        GPIO.cleanup()
