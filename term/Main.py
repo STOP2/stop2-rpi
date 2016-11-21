@@ -4,8 +4,10 @@ from rpi_controller import RPIController
 
 # Initialization
 
+rpi = RPIController()
+
 s = input('Laitetaanko valo paalle? ')
 if s:
-    RPIController.turnLightOn()
+    rpi.turnLightOn()
 else:
-    RPIController.turnLightOff()
+    rpi.turnLightOff()
