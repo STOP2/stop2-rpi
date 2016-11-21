@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from term.rpi_controller import RPIController
+from rpi_controller import RPIController
 
 # Initialization
 
