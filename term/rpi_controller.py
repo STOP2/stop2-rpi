@@ -5,7 +5,7 @@ import RPi.GPIO as GPIO
 
 class RPIController:
     GPIO.setmode(GPIO.BCM)
-    GPIO.setup(24, GPIO.OUT)
+    GPIO.setup(18, GPIO.OUT)
 
     def turnLightOn(self):
         print("Valo päälle")
