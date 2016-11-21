@@ -18,4 +18,4 @@ class NetworkHandler:
 
     def parseData(data, filterTest, str)
         a = []
-        tmp = 
+        tmp =

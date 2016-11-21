@@ -1,3 +1,4 @@
 .idea/
 .cache
 .coverage
+term/__pycache__
