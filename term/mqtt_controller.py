@@ -10,7 +10,7 @@ class MQTTManager:
         client = mqtt.Client()
         client.on_connect = self.on_connect
         client.on_message = self.on_message
-        client.connect("ws://epsilon.fixme.fi:9001", 1883, 60)
+        client.connect("ws://epsilon.fixme.fi", 9001, 60)
 
     def on_connect(client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
