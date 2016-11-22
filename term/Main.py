@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from rpi_controller import RPIController
+from mqtt_controller import MQTTManager
 
 # Initialization
 
 rpi = RPIController()
+mqtt = MQTTManager()
 
 # noinspection PyBroadException
 try:
