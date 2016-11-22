@@ -12,9 +12,8 @@ mqtt = MQTTManager()
 
 config = configparser.ConfigParser()
 config.read('../config.ini')
-apiConfig = config['API']
-otherConfig = config['Others']
-print(apiConfig)
+hslApi = config.get('API', 'HSL_API')
+print(hslApi)
 
 # Connect to MQTT by bus number
 mqtt.connect(sys.argv[0])
