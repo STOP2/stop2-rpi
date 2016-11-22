@@ -1,4 +1,6 @@
 import math
+import datetime
+import types
 
 DEVIATION = 0.0003
 
@@ -117,3 +119,34 @@ class Geometry:
             elif k >= i:
                 return j
         return -1   # Only possible if the graph extends past the last stop
+
+
+class Trip:
+    def __init__(self, dic):
+        self.copy_data(dic)
+        self.dir = int(self.dir) - 1
+
+    def __eq__(self, other):
+        for attr in dir(self):
+            if attr.startswith('__') or callable(getattr(self, attr)):
+                continue
+            if getattr(self, attr) != getattr(other, attr):
+                return False
+        return True
+
+    def copy_data(self, dic):
+        for k in dic.keys():
+            self.__setattr__(k, dic[k])
+
+    def start_in_secs(self):
+        return (int(self.start[:-2]) * 60 + int(self.start[-2:])) * 60
+
+
+    #def update_pos(self, lat, long, stop):
+    #    pass
+
+
+    def date(self):
+        # "tst": "2016-11-21T12:40:52.659Z"
+        d = datetime.datetime.strptime(self.tst, "%Y-%m-%dT%H:%M:%S.%fZ")
+        return "%d%d%d" % (d.year, d.month, d.day)
