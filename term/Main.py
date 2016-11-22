@@ -6,6 +6,7 @@ from rpi_controller import RPIController
 
 rpi = RPIController()
 
+# noinspection PyBroadException
 try:
     while True:
         s = input('Laitetaanko valo paalle? ')
@@ -14,5 +15,5 @@ try:
         else:
             rpi.turnLightOff()
 
-except KeyboardInterrupt:
+except:
     rpi.turnAllOff()
