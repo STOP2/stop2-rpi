@@ -1,5 +1,5 @@
 import unittest
-from Geometry import Geometry, PositioningError
+from trip import Geometry, PositioningError, Trip
 
 testdata = [
       [ 25.035327795074164, 60.27532190185115 ], [ 25.0354558, 60.2753065 ], [ 25.0355154, 60.2752986 ],
@@ -373,7 +373,54 @@ class GeometryTestCase(unittest.TestCase):
 
         self.assertEqual(self.geom.index_in_list(stoplist[:2], [25.0348939, 60.2775104]), -1)
 
+class TripTestCase(unittest.TestCase):
+    def setUp(self):
+        self.trip = Trip({
+            "desi": "1075",
+            "dir": "1",
+            "oper": "XXX",
+            "veh": "1208",
+            "tst": "2016-11-21T12:40:52.659Z",
+            "tsi": 1479732052,
+            "spd": 0,
+            "lat": 60.17195,
+            "long": 24.94316,
+            "next": 'undefined',
+            "oday": "XXX",
+            "jrn": "XXX",
+            "line": "1075",
+            "start": "1442"})
 
+        self.trip2 = Trip({
+            "desi": "1075",
+            "dir": "1",
+            "oper": "XXX",
+            "veh": "1208",
+            "tst": "2016-11-21T12:40:52.659Z",
+            "tsi": 1479732052,
+            "spd": 0,
+            "lat": 60.17195,
+            "long": 24.94316,
+            "next": 'undefined',
+            "oday": "XXX",
+            "jrn": "XXX",
+            "line": "1075",
+            "start": "1442"})
 
-if __name__ == '__ma`in__':
+    def test_copy(self):
+        self.assertEqual(60.17195, self.trip.lat)
+        # FIXME: add more test cases
+
+    def test_start(self):
+        self.assertEqual(self.trip.start_in_secs(), 52920)
+
+    def test_date(self):
+        self.assertEqual(self.trip.date(), '20161121')
+
+    def test_eq(self):
+        self.assertTrue(self.trip == self.trip2)
+        self.trip2.dir = "0"
+        self.assertFalse(self.trip == self.trip2)
+
+if __name__ == '__main__':
     unittest.main()
