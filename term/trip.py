@@ -4,11 +4,13 @@ import types
 
 DEVIATION = 0.0003
 
+
 class PositioningError(Exception):
     def __init__(self, value):
         self.value = value
     def __str__(self):
         return repr(self.value)
+
 
 class Geometry:
     """
@@ -29,7 +31,6 @@ class Geometry:
         """
         return [p2[0] - p1[0], p2[1] - p1[1]]
 
-
     def norm(self, vect):
         """
         Calculates the norm of vector v
@@ -37,7 +38,6 @@ class Geometry:
         :return: A real number representing the norm
         """
         return math.sqrt(vect[0] * vect[0] + vect[1] * vect[1])
-
 
     def component(self, vect1, vect2):
         """
@@ -49,8 +49,6 @@ class Geometry:
         return ((vect1[0] * vect2[0] + vect1[1] * vect2[1]) /
                 (vect2[0] * vect2[0] + vect2[1] * vect2[1]))
 
-
-
     def is_within_radius(self, p1, p2, rad=DEVIATION):
         """
         Determines whether p2 is within rad distance of p2
@@ -60,7 +58,6 @@ class Geometry:
         :return: True if p2 is closer than rad to p1 and False otherwise
         """
         return self.norm(self.located_vector(p1, p2)) < rad
-
 
     def is_between_points(self, p1, p2, loc):
         """
@@ -78,7 +75,6 @@ class Geometry:
         v3 = [v1[0] * c - v2[0], v1[1] * c - v2[1]]
         return c > 0 and c < 1 and self.norm(v3) < DEVIATION
 
-
     def index_of(self, point, start=0):
         """
         Calculates the index of the nearest point to 'point' arg in the graph
@@ -90,13 +86,12 @@ class Geometry:
             of point or -1 if location not found
         """
         for i in range(start, len(self.data) - 1):
-            if  self.is_within_radius(self.data[i], point) or \
-                self.is_between_points(self.data[i], self.data[i + 1], point):
+            if self.is_within_radius(self.data[i], point) or \
+               self.is_between_points(self.data[i], self.data[i + 1], point):
                 return i
         if self.is_within_radius(self.data[-1], point):
             return len(self.data) - 1
         return -1
-
 
     def index_in_list(self, lst, pt, start=0):
         """
@@ -141,10 +136,8 @@ class Trip:
     def start_in_secs(self):
         return (int(self.start[:-2]) * 60 + int(self.start[-2:])) * 60
 
-
     #def update_pos(self, lat, long, stop):
     #    pass
-
 
     def date(self):
         # "tst": "2016-11-21T12:40:52.659Z"

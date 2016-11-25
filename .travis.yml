@@ -4,9 +4,8 @@ python:
   - 3.5.2
 install:
   - pip install -r requirements.txt
-  - export PYTHONPATH=$(pwd)/term/
+  - cd term
 script:
-  - coverage run -m --branch --source=src --omit=src/tests/* unittest discover -s src/tests
-  - coverage report -m
+  - coverage run -m --branch --omit=test_*,*/lib/* --source=. unittest discover
 after_success:
   - coveralls

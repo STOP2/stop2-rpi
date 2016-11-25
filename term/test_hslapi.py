@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from httmock import urlmatch, HTTMock
-from datasource import get_rt_data, get_graphql_data
+from hslapi import get_rt_data, get_graphql_data
 import trip
 
 rt_resp = """
@@ -9132,13 +9132,16 @@ t = trip.Trip({
       "start": "1053"
     })
 
+
 @urlmatch(netloc=r'.*dev\.hsl\.fi')
 def hsl_rt_mock(url, request):
     return rt_resp
 
+
 @urlmatch(netloc=r'.*api\.digitransit\.fi')
 def digitransit_mock(url, request):
     return gql_resp
+
 
 class RealTimeAPITestCase(unittest.TestCase):
     def test_get_rt_data(self):
@@ -9150,7 +9153,7 @@ class RealTimeAPITestCase(unittest.TestCase):
             self.assertEqual(res[0], t)
 
     def test_graphql(self):
-        get_graphql_data(t)
+        tr =  get_graphql_data(t)
 
 if __name__ == '__main__':
     unittest.main()
