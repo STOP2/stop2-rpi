@@ -1,5 +1,5 @@
 from threads import MQTTListener, LocationFetcher
-from hslapi import get_graphql_data, get_rt_data
+from api import get_graphql_data, get_rt_data
 from queue import Queue
 from config import Config
 config = Config()

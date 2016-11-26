@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from httmock import urlmatch, HTTMock
-from hslapi import get_rt_data, get_graphql_data
+from api import get_rt_data, get_graphql_data
 import trip
 
 rt_resp = """

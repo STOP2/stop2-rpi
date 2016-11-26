@@ -1,6 +1,6 @@
 import threading
 import paho.mqtt.client as mqtt
-from hslapi import get_rt_data
+from api import get_rt_data
 import time
 import json
 
