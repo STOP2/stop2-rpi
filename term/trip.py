@@ -139,6 +139,9 @@ class Trip:
     #def update_pos(self, lat, long, stop):
     #    pass
 
+    def stop_at_next(self):
+        return True
+
     def date(self):
         # "tst": "2016-11-21T12:40:52.659Z"
         d = datetime.datetime.strptime(self.tst, "%Y-%m-%dT%H:%M:%S.%fZ")

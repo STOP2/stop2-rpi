@@ -13,12 +13,12 @@ class MQTTListener(threading.Thread):
         self.mqttc.on_connect = self.on_connect(topic)
         self.mqttc.on_message = self.on_message(queue)
 
-    def on_message(queue):
+    def on_message(self, queue):
         def f(client, userdata, msg):
             queue.put(msg.payload)
         return f
 
-    def on_connect(topic):
+    def on_connect(self, topic):
         def f(client, userdata, flags, rc):
             print("Connected with result code " + str(rc))
             print("subscribing to : " + topic)
