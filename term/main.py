@@ -30,12 +30,12 @@ if __name__ == '__main__':
     # Queue is used for all MQTT messages and API call results
     q = Queue()
 
-    # Init MQTT listener in its own thread
+    # Start MQTT listener in its own thread
     m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL)
     m.setDaemon(True)
     m.start()
 
-    # Init real time api caller in its own thread
+    # Start real time api caller in its own thread
     l = LocationFetcher(q, str(config.TEST_VEH_ID), 4)
     l.setDaemon(True)
     l.start()
@@ -47,9 +47,9 @@ if __name__ == '__main__':
             data = q.get()
 
             # Parse the message
-            if 'lat' in data:
+            if 'lat' in data: # Real-time API message
                 trip.update_loc(data)
-            elif 'stop_ids' in data:
+            elif 'stop_ids' in data: # MQTT message
                 trip.update_stop_reqs(data)
 
             # Press the stop button
