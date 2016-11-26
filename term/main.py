@@ -1,19 +1,26 @@
-STOP_API = "http://stop20.herokuapp.com"
-RT_API_URL  = "http://dev.hsl.fi/hfp/journey/bus/"
-HSL_API = "https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql"
-TEST_VEH_ID = '1103'
-DEBUG_MODE = True
-UPDATE_INTERVAL = 2000
-DEVIATION = 0.0003
+import configparser
+config = configparser.ConfigParser()
+config.read('../config.ini')
+
+STOP_API = config.get('API', 'STOP_API')
+RT_API_URL  = config.get('API', 'RT_API_URL')
+HSL_API = config.get('API', 'HSL_API')
+
+TEST_VEH_ID = config.get('Others', 'TEST_VEH_ID')
+DEBUG_MODE = config.get('Others', 'DEBUG_MODE')
+RPI_MODE = config.get('Others', 'RPI_MODE')
+UPDATE_INTERVAL = config.get('Others', 'UPDATE_INTERVAL')
+DEVIATION = config.get('Others', 'DEVIATION')
 
 import json
 from threads import MQTTListener, LocationFetcher
 from queue import Queue
 from trip import Trip
-if (DEBUG_MODE):
-    from mock_rpi import RPIController
-else:
+
+if RPI_MODE == True:
     from rpi import RPIController
+else:
+    from mock_rpi import RPIController
 
 
 if __name__ == '__main__':
