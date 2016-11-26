@@ -1,8 +1,9 @@
 import math
 import datetime
 import types
-
-DEVIATION = 0.0003
+import time
+from config import Config
+config = Config()
 
 
 class PositioningError(Exception):
@@ -49,7 +50,7 @@ class Geometry:
         return ((vect1[0] * vect2[0] + vect1[1] * vect2[1]) /
                 (vect2[0] * vect2[0] + vect2[1] * vect2[1]))
 
-    def is_within_radius(self, p1, p2, rad=DEVIATION):
+    def is_within_radius(self, p1, p2, rad=config.DEVIATION):
         """
         Determines whether p2 is within rad distance of p2
         :param p1: Two-element array
@@ -73,7 +74,7 @@ class Geometry:
         v2 = self.located_vector(p1, loc)
         c = self.component(v2, v1)
         v3 = [v1[0] * c - v2[0], v1[1] * c - v2[1]]
-        return c > 0 and c < 1 and self.norm(v3) < DEVIATION
+        return c > 0 and c < 1 and self.norm(v3) < config.DEVIATION
 
     def index_of(self, point, start=0):
         """
@@ -139,8 +140,14 @@ class Trip:
     #def update_pos(self, lat, long, stop):
     #    pass
 
+    def update_loc(self, data):
+        print(data)
+
+    def update_stop_reqs(self, data):
+        print(data)
+
     def stop_at_next(self):
-        return True
+        return False
 
     def date(self):
         # "tst": "2016-11-21T12:40:52.659Z"

@@ -1,10 +1,8 @@
 import requests
 from trip import Trip, Geometry
 import json
-
-RT_API_URL = "http://dev.hsl.fi/hfp/journey/bus/"
-HSL_API = "https://api.digitransit.fi/routing/v1/routers/hsl/index/graphql"
-
+from config import Config
+config = Config()
 
 def get_rt_data(veh_id='', line=0):
     """
@@ -14,7 +12,7 @@ def get_rt_data(veh_id='', line=0):
     :return: A list of Trips for each vehicle
     """
     a = []
-    r = requests.get(RT_API_URL + (veh_id + "/" if veh_id else ""))
+    r = requests.get(config.RT_API_URL + (veh_id + "/" if veh_id else ""))
     r.raise_for_status()
     o = r.json()
     for k in o.keys():
@@ -22,8 +20,10 @@ def get_rt_data(veh_id='', line=0):
         if veh_id != fields[4] and line != fields[5]:
             continue
         nxt = fields[9]
+        route_id = fields[5]
         trip = o[k]["VP"]
         trip["next"] = nxt
+        trip["route_id"] = route_id
         t = Trip(trip) # FIXME: handle exceptions
         a.append(t)
     return a
@@ -62,10 +62,11 @@ def get_graphql_data(trip):
         }}
     }}""".format(trip.line, trip.dir, trip.date(), trip.start_in_secs())
     headers = {'Content-type': "application/graphql"}
-    r = requests.post(HSL_API, data=query, headers=headers)
+    r = requests.post(config.HSL_API, data=query, headers=headers)
     r.raise_for_status()    # Let the controller handle that
     d = json.loads(r.text, object_hook=hook)
     if d is not None:
+        print(d)
         trip.copy_data(d)
     else:
         pass  # FIXME: throw exception?

@@ -2,6 +2,7 @@ import threading
 import paho.mqtt.client as mqtt
 from hslapi import get_rt_data
 import time
+import json
 
 
 class MQTTListener(threading.Thread):
@@ -15,13 +16,12 @@ class MQTTListener(threading.Thread):
 
     def on_message(self, queue):
         def f(client, userdata, msg):
-            queue.put(msg.payload)
+            queue.put(json.loads(msg.payload.decode("utf-8")))
         return f
 
     def on_connect(self, topic):
         def f(client, userdata, flags, rc):
-            print("Connected with result code " + str(rc))
-            print("subscribing to : " + topic)
+            print("Connected MQTT with result code " + str(rc) + ", subscribing to " + topic)
             client.subscribe(topic)
         return f
 
@@ -41,5 +41,5 @@ class LocationFetcher(threading.Thread):
         while True:
             d = get_rt_data(veh_id=self.vehid)
             if len(d) > 0:
-                self.queue.put({"veh": d[0].veh, "lat": d[0].lat, "long": d[0].long})
+                self.queue.put({"veh": d[0].veh, "lat": d[0].lat, "long": d[0].long, "tst": d[0].tst, "start": d[0].start, "dir": d[0].dir})
             time.sleep(self.interval)
