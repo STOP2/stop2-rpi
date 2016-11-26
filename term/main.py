@@ -22,13 +22,16 @@ if __name__ == '__main__':
     l.setDaemon(True)
     l.start()
 
-    while True:
-        data = q.get()
+    try:
+        while True:
+            data = q.get()
 
-        if 'lat' in data:
-            trip.update_loc(data)
-        elif 'stop_ids' in data:
-            trip.update_stop_reqs(data)
+            if 'lat' in data:
+                trip.update_loc(data)
+            elif 'stop_ids' in data:
+                trip.update_stop_reqs(data)
 
-        if trip.stop_at_next():
-            rpi.turnLightOn()
+            if trip.stop_at_next():
+                rpi.pressStopButton()
+    except:
+        rpi.cleanup() # Sammutetaan RPi:n valo virhetilanteessa

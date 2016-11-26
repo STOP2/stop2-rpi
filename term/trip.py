@@ -94,6 +94,11 @@ class Geometry:
             return len(self.data) - 1
         return -1
 
+    def next_stop_index(self, trip):
+        stoplist = trip.stops
+        geom = trip.geometry
+        print(geom)
+
     def index_in_list(self, lst, pt, start=0):
         """
         Calculates the index of the element in list lst that follows point pt
@@ -137,14 +142,18 @@ class Trip:
     def start_in_secs(self):
         return (int(self.start[:-2]) * 60 + int(self.start[-2:])) * 60
 
-    #def update_pos(self, lat, long, stop):
-    #    pass
-
     def update_loc(self, data):
         print(data)
+        self.lat = data['lat']
+        self.long = data['long']
 
     def update_stop_reqs(self, data):
         print(data)
+        for k in data['stop_ids']:
+            for s in self.stops:
+                if k['id'] == s['gtfsId']:
+                    s['passengers'] = k['passengers']
+                    #print("Changing stop " + str(s['gtfsId']) + " passengers from " + str(s['passengers']) + " to " + str(k['passengers']))
 
     def stop_at_next(self):
         return False

@@ -3,11 +3,8 @@
 
 class RPIController:
 
-    def turnLightOn(self):
+    def pressStopButton(self):
         print("Valo päälle")
 
-    def turnLightOff(self):
-        print("Valo poies")
-
-    def turnAllOff(self):
+    def cleanup(self):
         print("Cleanup")
