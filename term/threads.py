@@ -5,6 +5,7 @@ import time
 import json
 
 
+# Listens to the MQTT channel
 class MQTTListener(threading.Thread):
     def __init__(self, queue, host, topic):
         threading.Thread.__init__(self)
@@ -14,22 +15,26 @@ class MQTTListener(threading.Thread):
         self.mqttc.on_connect = self.on_connect(topic)
         self.mqttc.on_message = self.on_message(queue)
 
+    # When the listener hears a message, put it in the main queue
     def on_message(self, queue):
         def f(client, userdata, msg):
             queue.put(json.loads(msg.payload.decode("utf-8")))
         return f
 
+    # Subscribe to the correct channel when connected to the broker
     def on_connect(self, topic):
         def f(client, userdata, flags, rc):
             print("Connected MQTT with result code " + str(rc) + ", subscribing to " + topic)
             client.subscribe(topic)
         return f
 
+    # Start the listener
     def run(self):
         self.mqttc.connect(self.host)
         self.mqttc.loop_forever()
 
 
+# Updates the vehicle's location from the real-time api
 class LocationFetcher(threading.Thread):
     def __init__(self, queue, vehid, poll_int):
         threading.Thread.__init__(self)
@@ -37,6 +42,7 @@ class LocationFetcher(threading.Thread):
         self.queue = queue
         self.interval = poll_int
 
+    # Start polling the real-time api
     def run(self):
         while True:
             d = get_rt_data(veh_id=self.vehid)

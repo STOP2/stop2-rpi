@@ -135,18 +135,22 @@ class Trip:
                 return False
         return True
 
+    # Copy data from a dictionary to this Trip
     def copy_data(self, dic):
         for k in dic.keys():
             self.__setattr__(k, dic[k])
 
+    # Convert the trip's start time to seconds
     def start_in_secs(self):
         return (int(self.start[:-2]) * 60 + int(self.start[-2:])) * 60
 
+    # Update the bus's location. Data comes from the real-time API
     def update_loc(self, data):
         print(data)
         self.lat = data['lat']
         self.long = data['long']
 
+    # Update the passenger counts on stops. Data comes from a MQTT message
     def update_stop_reqs(self, data):
         print(data)
         for k in data['stop_ids']:
@@ -154,6 +158,7 @@ class Trip:
                 if k['id'] == s['gtfsId']:
                     s['passengers'] = k['passengers']
 
+    # Check if the vehicle should stop on the next stop
     def stop_at_next(self):
         next_stop_id = 0 # TODO: Hae Geometryn avulla seuraava pysäkki
         for s in self.stops:
@@ -161,6 +166,7 @@ class Trip:
                 return s['passengers'] > 0
         return False
 
+    # Convert the trip's start time to a date
     def date(self):
         # "tst": "2016-11-21T12:40:52.659Z"
         d = datetime.datetime.strptime(self.tst, "%Y-%m-%dT%H:%M:%S.%fZ")
