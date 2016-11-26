@@ -9137,7 +9137,6 @@ t = trip.Trip({
 def hsl_rt_mock(url, request):
     return rt_resp
 
-
 @urlmatch(netloc=r'.*api\.digitransit\.fi')
 def digitransit_mock(url, request):
     return gql_resp
@@ -9153,7 +9152,10 @@ class RealTimeAPITestCase(unittest.TestCase):
             self.assertEqual(res[0], t)
 
     def test_graphql(self):
-        tr =  get_graphql_data(t)
+        with HTTMock(digitransit_mock):
+            tr = get_graphql_data(t)
+            self.assertEqual(len(tr), 1)
+            self.assertEqual(tr[0][0].gtfsId, "HSL:1075_20161110_Ma_1_1442")
 
 if __name__ == '__main__':
     unittest.main()
