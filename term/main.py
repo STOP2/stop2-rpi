@@ -12,7 +12,10 @@ else:
 
 if __name__ == '__main__':
     trip = get_rt_data(str(config.TEST_VEH_ID))[0]
-    trip = get_graphql_data(trip)
+    try:
+        trip = get_graphql_data(trip)
+    except ValueError as err:
+        print(err.args)
     rpi = RPIController()
     q = Queue()
     m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL)

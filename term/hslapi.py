@@ -4,6 +4,7 @@ import json
 from config import Config
 config = Config()
 
+
 def get_rt_data(veh_id='', line=0):
     """
     Fetches real time data from the HSL api.
@@ -69,5 +70,5 @@ def get_graphql_data(trip):
         print(d)
         trip.copy_data(d)
     else:
-        pass  # FIXME: throw exception?
+        raise ValueError("Data not received from GraphQL API")
     return trip

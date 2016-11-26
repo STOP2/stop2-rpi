@@ -8,7 +8,7 @@ class RPIController:
     GPIO.setup(18, GPIO.OUT)
 
     def press_stop_button(self):
-        print("Valo päälle")
+        print("Pressed STOP button")
         GPIO.output(18, 1)
 
     def cleanup(self):

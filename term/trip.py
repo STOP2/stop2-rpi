@@ -155,7 +155,7 @@ class Trip:
                     s['passengers'] = k['passengers']
 
     def stop_at_next(self):
-        next_stop_id = 0
+        next_stop_id = 0 # TODO: Hae Geometryn avulla seuraava pysäkki
         for s in self.stops:
             if next_stop_id == s['gtfsId']:
                 return s['passengers'] > 0
