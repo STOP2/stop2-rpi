@@ -153,9 +153,12 @@ class Trip:
             for s in self.stops:
                 if k['id'] == s['gtfsId']:
                     s['passengers'] = k['passengers']
-                    #print("Changing stop " + str(s['gtfsId']) + " passengers from " + str(s['passengers']) + " to " + str(k['passengers']))
 
     def stop_at_next(self):
+        next_stop_id = 0
+        for s in self.stops:
+            if next_stop_id == s['gtfsId']:
+                return s['passengers'] > 0
         return False
 
     def date(self):

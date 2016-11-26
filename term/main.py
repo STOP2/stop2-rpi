@@ -11,14 +11,14 @@ else:
 
 
 if __name__ == '__main__':
-    trip = get_rt_data('1103')[0]
+    trip = get_rt_data(str(config.TEST_VEH_ID))[0]
     trip = get_graphql_data(trip)
     rpi = RPIController()
     q = Queue()
-    m = MQTTListener(q, 'broker.hivemq.com', 'paho/test/threads')
+    m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL)
     m.setDaemon(True)
     m.start()
-    l = LocationFetcher(q, '1103', 4)
+    l = LocationFetcher(q, str(config.TEST_VEH_ID), 4)
     l.setDaemon(True)
     l.start()
 
@@ -32,6 +32,6 @@ if __name__ == '__main__':
                 trip.update_stop_reqs(data)
 
             if trip.stop_at_next():
-                rpi.pressStopButton()
+                rpi.press_stop_button()
     except:
         rpi.cleanup() # Sammutetaan RPi:n valo virhetilanteessa

@@ -3,7 +3,7 @@
 
 class RPIController:
 
-    def pressStopButton(self):
+    def press_stop_button(self):
         print("Valo päälle")
 
     def cleanup(self):

@@ -7,7 +7,7 @@ class RPIController:
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(18, GPIO.OUT)
 
-    def pressStopButton(self):
+    def press_stop_button(self):
         print("Valo päälle")
         GPIO.output(18, 1)
 

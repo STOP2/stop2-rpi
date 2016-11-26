@@ -8,6 +8,8 @@ class Config:
         self.STOP_API = config.get('API', 'STOP_API')
         self.RT_API_URL = config.get('API', 'RT_API_URL')
         self.HSL_API = config.get('API', 'HSL_API')
+        self.MQTT_BROKER = config.get('API', 'MQTT_BROKER')
+        self.MQTT_CHANNEL = config.get('API', 'MQTT_CHANNEL')
 
         self.TEST_VEH_ID = config.get('Others', 'TEST_VEH_ID')
         self.DEBUG_MODE = config.get('Others', 'DEBUG_MODE')
