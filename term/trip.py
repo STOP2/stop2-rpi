@@ -144,13 +144,13 @@ class Trip:
     def start_in_secs(self):
         return (int(self.start[:-2]) * 60 + int(self.start[-2:])) * 60
 
-    # Update the bus's location. Data comes from the real-time API
+    # Update the vehicle's location. Data comes from the real-time API
     def update_loc(self, data):
         print(data)
         self.lat = data['lat']
         self.long = data['long']
 
-    # Update the passenger counts on stops. Data comes from a MQTT message
+    # Update the passenger counts on stops. Data comes from MQTT messages
     def update_stop_reqs(self, data):
         print(data)
         for k in data['stop_ids']:
