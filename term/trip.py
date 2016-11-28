@@ -97,7 +97,6 @@ class Geometry:
     def next_stop_index(self, trip):
         stoplist = trip.stops
         geom = trip.geometry
-        print(geom)
 
     def index_in_list(self, lst, pt, start=0):
         """
@@ -146,13 +145,11 @@ class Trip:
 
     # Update the vehicle's location. Data comes from the real-time API
     def update_loc(self, data):
-        print(data)
         self.lat = data['lat']
         self.long = data['long']
 
     # Update the passenger counts on stops. Data comes from MQTT messages
     def update_stop_reqs(self, data):
-        print(data)
         for k in data['stop_ids']:
             for s in self.stops:
                 if k['id'] == s['gtfsId']:

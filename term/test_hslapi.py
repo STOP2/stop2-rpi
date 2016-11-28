@@ -9129,7 +9129,8 @@ t = trip.Trip({
       "oday": "XXX",
       "jrn": "XXX",
       "line": "1075",
-      "start": "1053"
+      "start": "1053",
+      "on_route": False
     })
 
 
@@ -9154,8 +9155,7 @@ class RealTimeAPITestCase(unittest.TestCase):
     def test_graphql(self):
         with HTTMock(digitransit_mock):
             tr = get_graphql_data(t)
-            self.assertEqual(len(tr), 1)
-            self.assertEqual(tr[0][0].gtfsId, "HSL:1075_20161110_Ma_1_1442")
+            self.assertEqual(tr.gtfsId, "HSL:1075_20161110_Ma_1_1442")
 
 if __name__ == '__main__':
     unittest.main()

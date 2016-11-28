@@ -24,7 +24,8 @@ def get_rt_data(veh_id='', line=0):
         route_id = fields[5]
         trip = o[k]["VP"]
         trip["next"] = nxt
-        trip["route_id"] = route_id
+        trip["desi"] = trip["line"] = route_id
+        trip["on_route"] = False
         t = Trip(trip) # FIXME: handle exceptions
         a.append(t)
     return a
@@ -67,7 +68,7 @@ def get_graphql_data(trip):
     r.raise_for_status()    # Let the controller handle that
     d = json.loads(r.text, object_hook=hook)
     if d is not None:
-        print(d)
+        #print(d)
         trip.copy_data(d)
     else:
         raise ValueError("Data not received from GraphQL API")

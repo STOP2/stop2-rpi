@@ -21,4 +21,4 @@ class Config:
         self.DEBUG_MODE = config.get('Others', 'DEBUG_MODE')
         self.RPI_MODE = config.get('Others', 'RPI_MODE')
         self.UPDATE_INTERVAL = config.get('Others', 'UPDATE_INTERVAL')
-        self.DEVIATION = config.get('Others', 'DEVIATION')
+        self.DEVIATION = float(config.get('Others', 'DEVIATION'))
