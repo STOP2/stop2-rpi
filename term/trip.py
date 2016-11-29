@@ -22,6 +22,7 @@ class Geometry:
 
     def __init__(self, data):
         self.data = data
+        self.index = 0
 
     def located_vector(self, p1, p2):
         """
@@ -94,10 +95,6 @@ class Geometry:
             return len(self.data) - 1
         return -1
 
-    def next_stop_index(self, trip):
-        stoplist = trip.stops
-        geom = trip.geometry
-
     def index_in_list(self, lst, pt, start=0):
         """
         Calculates the index of the element in list lst that follows point pt
@@ -120,11 +117,32 @@ class Geometry:
                 return j
         return -1   # Only possible if the graph extends past the last stop
 
+    def update_loc(self, pt):
+        """
+        Updates the current position on the graph. (The index into the graph
+        of the coordinates of pt). The position is updated only if the location
+        of pt is ahead of the current location on the graph.
+        :param pt: A GPS location ([long, lat])
+        :return: 0 if the position hasn't changed, a number n > 0 if the
+            position has advanced, n < 0 if the calculation was wrong.
+        """
+        i = self.index_of(pt, start=self.index)
+        ret = i - self.index
+        if i > self.index:
+            self.index = i
+        return ret
+
+    def reset(self):
+        self.index = 0
+
 
 class Trip:
     def __init__(self, dic):
         self.copy_data(dic)
         self.dir = int(self.dir) - 1
+        self.on_route = False
+        self.stop_index = 0
+        self.stoplocs = []
 
     def __eq__(self, other):
         for attr in dir(self):
@@ -141,17 +159,73 @@ class Trip:
 
     # Convert the trip's start time to seconds
     def start_in_secs(self):
-        return (int(self.start[:-2]) * 60 + int(self.start[-2:])) * 60
+        return Trip.secs_past_midnight(self.start)
+
+    @staticmethod
+    def secs_past_midnight(str):
+        return (int(str[:-2]) * 60 + int(str[-2:])) * 60
+
+    def init(self):
+        self.stoplocs = [[s.lon, s.lat] for s in self.stops]
+        if self.next != 'undefined':
+            self.next = "HSL:" + self.next
+
+    def next_stop(self):
+        return self.stops[self.stop_index]
+
+    def prev_stop(self, id):
+        for i in range(len(self.stops) - 1):
+            if self.stops[i].gtfsId == id:
+                return self.stops[i]
+        return None
+
+    def stop_indx(self, id):
+        for i in range(len(self.stops)):
+            if self.stops[i]["gtfsId"] == id:
+                return i
+        return -1
+
+    def past_departure_time(self):
+        d = datetime.datetime.now()
+        t = Trip.secs_past_midnight("%d%d" % (d.hour, d.minute))
+        return t - self.start_in_secs() >= 0
+
+    def moving_along_route(self, loc):
+        return self.geometry.index_of(loc) > 3  #  somewhat arbitrary
+
 
     # Update the vehicle's location. Data comes from the real-time API
+    # and is assumed to have the following format:
+    # {'lat': num, 'long': num, 'next': str}
     def update_loc(self, data):
-        self.lat = data['lat']
         self.long = data['long']
+        self.lat = data['lat']
+        loc = [self.long, self.lat]
+
+        if self.geometry.update_loc(loc) < 0:
+            #  raise PositioningError("Can't determine position on route")
+            pass  # FIXME: log error instead?
+        # Calculate the next stop based on the current position.
+        self.stop_index = self.geometry.index_in_list(self.stoplocs, loc,
+                                                      start=self.stop_index)
+        if self.stop_index == -1:
+            #  raise PositioningError("Can't determine next stop on route")
+            pass  # FIXME: log error?
+
+        if data['next'] != 'undefined':
+            # TODO: geometry.update_loc(prev_stop_loc)
+            pass
+        if not self.on_route:  # Not on route
+            if self.past_departure_time() and self.moving_along_route(loc):
+                self.on_route = True
+            else:
+                self.geometry.reset()
 
     # Update the passenger counts on stops. Data comes from MQTT messages
     def update_stop_reqs(self, data):
-        for k in data['stop_ids']:
-            for s in self.stops:
+        for s in self.stops:
+            s["passengers"] = 0
+            for k in data['stop_ids']:
                 if k['id'] == s['gtfsId']:
                     s['passengers'] = k['passengers']
 

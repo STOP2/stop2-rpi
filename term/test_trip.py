@@ -4174,6 +4174,19 @@ class GeometryTestCase(unittest.TestCase):
 
         self.assertEqual(self.geom.index_in_list(stoplist[:2], [25.0348939, 60.2775104]), -1)
 
+    def test_update_loc(self):
+        i = self.geom.update_loc([ 25.0446172, 60.2734301 ])
+        self.assertGreater(i, 0)
+        self.assertEqual(self.geom.index, 52)
+        i = self.geom.update_loc([ 25.0440939, 60.2749252 ])
+        self.assertLess(i, 0)
+        self.assertEqual(self.geom.index, 52)
+
+    def test_reset(self):
+        i = self.geom.update_loc([25.0446172, 60.2734301])
+        self.assertEqual(self.geom.index, 52)
+        self.geom.reset()
+        self.assertEqual(self.geom.index, 0)
 
 class TripTestCase(unittest.TestCase):
     def setUp(self):

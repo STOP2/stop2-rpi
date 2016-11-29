@@ -25,7 +25,6 @@ def get_rt_data(veh_id='', line=0):
         trip = o[k]["VP"]
         trip["next"] = nxt
         trip["desi"] = trip["line"] = route_id
-        trip["on_route"] = False
         t = Trip(trip) # FIXME: handle exceptions
         a.append(t)
     return a
