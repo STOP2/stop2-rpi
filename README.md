@@ -1,6 +1,12 @@
 # stop2-rpi
 
-The current prototype of the driver client running on a Raspberry Pi. Has no UI visible to the user, but can be connected to the vehicle's STOP button via the RPi IO pins.
+The current prototype of the driver client running on a Raspberry Pi (the old JavaScript one that can be used as an additional visualizer can be found here: https://github.com/STOP2/stop2.0-driver-client). Has no UI visible to the user, but can be connected to the vehicle's STOP button via the RPi IO pins.
+
+## How to run
+
+- `pip install -r requirements.txt`
+- `cd term`
+- `python3 main.py`
 
 ## Files
 
@@ -13,12 +19,6 @@ The source files are in the `term` folder.
 - `test_` files - The tests. They are run by Travis.
 - `threads.py` - Starts the MQTT listener and API poller in their own threads
 - `trip.py` - Bus tracking logic (`Geometry`) and trip information (stop list etc., `Trip`)
-
-## How to run
-
-- `pip install -r requirements.txt`
-- `cd term`
-- `python3 main.py`
 
 ## Configuration
 
