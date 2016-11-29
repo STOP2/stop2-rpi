@@ -7,7 +7,7 @@ class Config:
     """
     def __init__(self):
         config = configparser.ConfigParser()
-        config.read('config.ini')
+        config.read('../config.ini')
 
         # API paths
         self.STOP_API = config.get('API', 'STOP_API')
