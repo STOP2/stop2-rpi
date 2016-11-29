@@ -16,13 +16,13 @@ if __name__ == '__main__':
 
     # Create trip
     try:
-        trip = get_rt_data(str(config.TEST_VEH_ID))[0]
+        trip = get_rt_data(str(config.VEH_ID))[0]
     except:
         print("No data from real-time api")
     try:
         trip = get_graphql_data(trip)
-    except ValueError as err:
-        print(err.args)
+    except:
+        print("No data from GraphQL")
 
     # Create Raspberry Pi controller
     rpi = RPIController()
@@ -31,12 +31,12 @@ if __name__ == '__main__':
     q = Queue()
 
     # Start MQTT listener in its own thread
-    m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL)
+    m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL + "/" + config.VEH_ID)
     m.setDaemon(True)
     m.start()
 
     # Start real time api caller in its own thread
-    l = LocationFetcher(q, str(config.TEST_VEH_ID), 4)
+    l = LocationFetcher(q, str(config.VEH_ID), 4)
     l.setDaemon(True)
     l.start()
 
