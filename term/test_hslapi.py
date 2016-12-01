@@ -9134,17 +9134,12 @@ t = trip.Trip({
     })
 
 
-@urlmatch(netloc=r'.*dev\.hsl\.fi')
-def hsl_rt_mock(url, request):
-    return rt_resp
-
-@urlmatch(netloc=r'.*api\.digitransit\.fi')
-def digitransit_mock(url, request):
-    return gql_resp
-
-
 class RealTimeAPITestCase(unittest.TestCase):
     def test_get_rt_data(self):
+        @urlmatch(netloc=r'.*dev\.hsl\.fi')
+        def hsl_rt_mock(url, request):
+            return rt_resp
+
         with HTTMock(hsl_rt_mock):
             res = get_rt_data('1215')
             self.assertEqual(len(res), 1)
@@ -9153,9 +9148,23 @@ class RealTimeAPITestCase(unittest.TestCase):
             self.assertEqual(res[0], t)
 
     def test_graphql(self):
+        @urlmatch(netloc=r'.*api\.digitransit\.fi')
+        def digitransit_mock(url, request):
+            return gql_resp
+
         with HTTMock(digitransit_mock):
             tr = get_graphql_data(t)
             self.assertEqual(tr.gtfsId, "HSL:1075_20161110_Ma_1_1442")
+
+
+    def test_graphql_ex(self):
+        @urlmatch(netloc=r'.*api\.digitransit\.fi')
+        def digitransit_mock(url, request):
+            return """{ "data": { "fuzzyTrip": null} }"""
+
+        with HTTMock(digitransit_mock):
+            with self.assertRaises(ValueError):
+                tr = get_graphql_data(t)
 
 if __name__ == '__main__':
     unittest.main()

@@ -130,10 +130,37 @@ class Geometry:
         ret = i - self.index
         if i > self.index:
             self.index = i
+            # FIXME: remove
+            if config.DEBUG_MODE:
+                print("======> %f, %f" % (pt[0], pt[1]))
         return ret
 
     def reset(self):
+        """
+        Resets the trip to the initial state.
+        :return: Nothing.
+        """
         self.index = 0
+
+    def past_halfway_between(self, p1, p2, loc):
+        """
+        Determines whether the trip has progressed past the halfway point
+        between two other points.
+        :param p1: The coordinates [long, lat] of the point that's already has
+            been passed.
+        :param p2: The coordinates [long, lat] of the point towards which
+            the trip is progressing at the moment.
+        :param loc: The coordinates [long, lat] of the current position on
+            the trip.
+        :return: True if loc is past the halfway point between p1 and p2 and
+            False otherwise.
+        """
+        i1 = self.index_of(p1)
+        i2 = self.index_of(p2)
+        i3 = self.index_of(loc)
+        if i1 < 0 or i2 < 0 or i3 < 0:
+            raise PositioningError("Can't determine position on route")
+        return (i3 - i1) > (i2 - i1) / 2
 
 
 class Trip:
@@ -145,6 +172,11 @@ class Trip:
         self.stoplocs = []
 
     def __eq__(self, other):
+        """
+        Overloads the '=' operator.
+        :param other: A Trip
+        :return: True if this trip deep equals other, False otherwise.
+        """
         for attr in dir(self):
             if attr.startswith('__') or callable(getattr(self, attr)):
                 continue
@@ -152,93 +184,194 @@ class Trip:
                 return False
         return True
 
-    # Copy data from a dictionary to this Trip
     def copy_data(self, dic):
+        """
+        Copies the contents of the dictionary dic into the trip itself turning
+            the keys into attributes.
+        :param dic: The dictionary containing trip data.
+        :return: Nothing.
+        """
         for k in dic.keys():
             self.__setattr__(k, dic[k])
 
-    # Convert the trip's start time to seconds
     def start_in_secs(self):
+        """
+        Converts the string representing the departure time of the trip into
+        the time represented as seconds.
+        :return: An integer representing the departure time of the trip in
+            seconds.
+        """
         return Trip.secs_past_midnight(self.start)
 
     @staticmethod
     def secs_past_midnight(str):
+        """
+        Converts the time represented by string str into an integer which is
+        the time in seconds. The string is assumed to be four characters
+        long.
+
+        :param str: Departure time as a string.
+        :return:  Integer representing the str in seconds.
+        """
         return (int(str[:-2]) * 60 + int(str[-2:])) * 60
 
     def init(self):
-        self.stoplocs = [[s.lon, s.lat] for s in self.stops]
-        if self.next != 'undefined':
+        """
+        Initialises the trip. Must be called after populating the trip with
+        data and before using the trip.
+        :return: Nothing.
+        """
+        self.stoplocs = []
+        for s in self.stops:
+            self.stoplocs.append([s["lon"], s["lat"]])
+            s["passengers"] = 0
+        if self.next != 'undefined' and not self.next.startswith("HSL"):
             self.next = "HSL:" + self.next
 
     def next_stop(self):
+        """
+        Returns the next stop on the route. Stops have the following format:
+        {
+          "code": "2403",
+          "gtfsId": "HSL:1111112",
+          "name": "Hakaniemi",
+          "lat": 60.17925870000008,
+          "lon": 24.950774100000025
+        }
+        :return: The next stop on the route.
+        """
         return self.stops[self.stop_index]
 
-    def prev_stop(self, id):
+    def prev_stop(self):
+        """
+        Returns the most recently passed stop. Stops have the following format:
+        {
+          "code": "2403",
+          "gtfsId": "HSL:1111112",
+          "name": "Hakaniemi",
+          "lat": 60.17925870000008,
+          "lon": 24.950774100000025
+        }
+        :return: The previous stop.
+        """
+        id = self.stops[self.stop_index]["gtfsId"]
         for i in range(len(self.stops) - 1):
-            if self.stops[i].gtfsId == id:
+            if self.stops[i + 1]['gtfsId'] == id:
                 return self.stops[i]
         return None
 
-    def stop_indx(self, id):
-        for i in range(len(self.stops)):
-            if self.stops[i]["gtfsId"] == id:
-                return i
-        return -1
-
     def past_departure_time(self):
+        """
+        Determines whether the current trip should have departed according
+        to the timetables at the current moment.
+        :return: True if departure time is past, False otherwise
+        """
         d = datetime.datetime.now()
-        t = Trip.secs_past_midnight("%d%d" % (d.hour, d.minute))
+        t = Trip.secs_past_midnight("%02d%02d" % (d.hour, d.minute))
         return t - self.start_in_secs() >= 0
 
-    def moving_along_route(self, loc):
-        return self.geometry.index_of(loc) > 3  #  somewhat arbitrary
+    def moving_along_route(self):
+        """
+        Determines whether progressed enough on the route to estimate
+        whether it's actually moving along its route.
+        :return: True if the vehicle has moved enough from the starting point,
+        False otherwise.
+        """
+        return self.geometry.index_of([self.long, self.lat]) > 3
 
-
-    # Update the vehicle's location. Data comes from the real-time API
-    # and is assumed to have the following format:
-    # {'lat': num, 'long': num, 'next': str}
     def update_loc(self, data):
+        """
+        Updates the current location on the trip. If the current location is
+        invalid, no changes happen in the internal representation of the trip.
+        :param data: A dictionary having the following format:
+            {'lat': num, 'long': num, 'next': str}, where 'next' is the
+            HSL id number (without the HSL prefix) of the next stop.
+        """
         self.long = data['long']
         self.lat = data['lat']
         loc = [self.long, self.lat]
 
         if self.geometry.update_loc(loc) < 0:
-            #  raise PositioningError("Can't determine position on route")
             pass  # FIXME: log error instead?
-        # Calculate the next stop based on the current position.
-        self.stop_index = self.geometry.index_in_list(self.stoplocs, loc,
-                                                      start=self.stop_index)
-        if self.stop_index == -1:
-            #  raise PositioningError("Can't determine next stop on route")
-            pass  # FIXME: log error?
+            #raise PositioningError("Can't determine position on route")
 
-        if data['next'] != 'undefined':
-            # TODO: geometry.update_loc(prev_stop_loc)
+        if self.update_stop_index(loc) == -1:
+            pass
+            #raise PositioningError("Can't determine next stop on route")
+
+        if 'next' in data.keys() and data['next'] != 'undefined':
+            # TODO: geometry.update_loc(prev_stop_loc)?
             pass
         if not self.on_route:  # Not on route
-            if self.past_departure_time() and self.moving_along_route(loc):
+            if self.past_departure_time() and self.moving_along_route():
                 self.on_route = True
+                # FIXME: remove
+                if config.DEBUG_MODE:
+                    print("STARTING TRIP")
             else:
                 self.geometry.reset()
+                self.stop_index = 0
 
-    # Update the passenger counts on stops. Data comes from MQTT messages
+    def update_stop_index(self, loc):
+        """
+        Updates the current position on the trip in respect to the stops. If
+        the current location is not on the trip, nothing happens.
+        :param loc: The current location in the format [long, lat]
+        :return: A number n >= 0 if the operation was successful and
+            n < 0 otherwise.
+        """
+        i = self.geometry.index_in_list(self.stoplocs, loc,
+                                        start=self.stop_index)
+        if i > self.stop_index:
+            self.stop_index = i
+            # TODO: substitute the following with an event dispatcher
+            if config.DEBUG_MODE:
+                s = self.stops[i]
+                print("####### Next stop: (%s) %s %s" %
+                      (s["code"], s["gtfsId"], s["name"]))
+        return i
+
     def update_stop_reqs(self, data):
+        """
+        Updates the stop requests for the current trips. The data is assumed
+        to contain *all* of the currently pending stop requests.
+        :param data: A dictionary having the following format:
+        { "stop_ids": [
+            {
+                "id": "HSL:1282106",
+                "passengers": 1
+            }
+        ] }
+        :return: The method doesn't return anything.
+        """
         for s in self.stops:
             s["passengers"] = 0
             for k in data['stop_ids']:
                 if k['id'] == s['gtfsId']:
                     s['passengers'] = k['passengers']
 
-    # Check if the vehicle should stop on the next stop
     def stop_at_next(self):
-        next_stop_id = 0 # TODO: Hae Geometryn avulla seuraava pysäkki
-        for s in self.stops:
-            if next_stop_id == s['gtfsId']:
-                return s['passengers'] > 0
+        """
+        Determines whether a stop should be made on the next bus stop. That is,
+        if the current location is past the halfway point between the most
+        recently passed stop and the next stop and there are stop requests for
+        the next stop.
+        :return: True or False depending on the need to stop.
+        """
+        if not self.on_route:
+            return False
+        pr = self.prev_stop()
+        nxt = self.next_stop()
+        if nxt['passengers'] > 0 and self.geometry.past_halfway_between(
+                [pr['lon'], pr['lat']], [nxt['lon'], nxt['lat']], [self.long, self.lat]):
+            return True
         return False
 
-    # Convert the trip's start time to a date
     def date(self):
+        """
+        Returns the date of the trip as a string. The format is YYYYMMDD.
+        :return: The date string.
+        """
         # "tst": "2016-11-21T12:40:52.659Z"
         d = datetime.datetime.strptime(self.tst, "%Y-%m-%dT%H:%M:%S.%fZ")
-        return "%d%d%d" % (d.year, d.month, d.day)
+        return "%d%d%02d" % (d.year, d.month, d.day)
