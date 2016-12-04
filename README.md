@@ -34,6 +34,7 @@ The application can be configured by using the `config.ini` file. Sections:
   - `DEBUG_MODE` - Enables additional debug prints
   - `UPDATE_INTERVAL` - How often the real time API is polled in milliseconds
   - `DEVIATION` - Deviation setting for `Geometry`
+  - `BUTTON_PRESS_DURATION` - How long the button should be kept pressed in seconds
 
 ## RPi pin configuration
 

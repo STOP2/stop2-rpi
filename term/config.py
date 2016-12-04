@@ -24,3 +24,4 @@ class Config:
         self.DEBUG_MODE = config.get('Others', 'DEBUG_MODE')
         self.UPDATE_INTERVAL = config.get('Others', 'UPDATE_INTERVAL')
         self.DEVIATION = float(config.get('Others', 'DEVIATION'))
+        self.BUTTON_PRESS_DURATION = float(config.get('Others', 'BUTTON_PRESS_DURATION'))

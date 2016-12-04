@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
+import time
+from config import Config
+config = Config()
+
 try:
     import RPi.GPIO as GPIO
 
     class RPIController:
         """
-        Setup the RPi pins
+        Setup & control the RPi pins
         """
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(18, GPIO.OUT)
+
+        def __init__(self):
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(18, GPIO.OUT)
 
         def press_stop_button(self):
             """
@@ -16,6 +22,8 @@ try:
             """
             print("Pressed STOP button")
             GPIO.output(18, 1)
+            time.sleep(config.BUTTON_PRESS_DURATION)  # Keep the pin on for a moment
+            GPIO.output(18, 0)  # Disable the pin
 
         def cleanup(self):
             """
@@ -26,6 +34,9 @@ try:
 
 except ImportError:
     class RPIController:
+        """
+        If not running on a Raspberry Pi, use this mock instead
+        """
 
         def press_stop_button(self):
             print("DING DING DING")

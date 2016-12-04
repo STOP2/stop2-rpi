@@ -12,8 +12,9 @@ class MQTTListener(threading.Thread):
     Listens to the MQTT channel and handles received messages.
     """
 
-    def __init__(self, queue, host, topic):
+    def __init__(self, queue, host, topic, gtfsId):
         threading.Thread.__init__(self)
+        self.gtfsId = gtfsId
         self.queue = queue
         self.host = host
         self.mqttc = mqtt.Client()
@@ -37,13 +38,24 @@ class MQTTListener(threading.Thread):
         def f(client, userdata, flags, rc):
             print("Connected MQTT with result code " + str(rc) + ", subscribing to " + topic)
             client.subscribe(topic)
+            self.connect_message()
         return f
 
-    def connect_message(self, gtfsId):
-        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "start", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + gtfsId + '" }')
+    def connect_message(self):
+        """
+        When starting MQTT listening, inform the backend.
+        :param gtfsId: The trip's ID
+        :return: Nothing.
+        """
+        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "start", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }')
 
-    def disconnect_message(self, gtfsId):
-        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "stop", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + gtfsId + '" }')
+    def disconnect_message(self):
+        """
+        When stopping MQTT listening, inform the backend
+        :param gtfsId: The trip's ID
+        :return: Nothing.
+        """
+        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "stop", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }')
 
     def run(self):
         """
