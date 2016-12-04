@@ -1,5 +1,6 @@
 from threads import MQTTListener, LocationFetcher
 from api import get_graphql_data, get_rt_data
+from rpi import RPIController
 from queue import Queue
 from config import Config
 config = Config()
@@ -10,19 +11,13 @@ if config.RPI_MODE == True: # Has to be "== True", simplified form does not work
 else:
     from mock_rpi import RPIController
 
-
 # Initialization
 if __name__ == '__main__':
 
     # Create trip
-    try:
-        trip = get_rt_data(str(config.VEH_ID))[0]
-    except:
-        print("No data from real-time api")
-    try:
-        trip = get_graphql_data(trip)
-    except:
-        print("No data from GraphQL")
+    trip = get_rt_data(str(config.VEH_ID))[0]
+    trip = get_graphql_data(trip)
+    trip.init()
 
     # Create Raspberry Pi controller
     rpi = RPIController()
@@ -45,6 +40,7 @@ if __name__ == '__main__':
         while True:
             # Get the next message from the queue
             data = q.get()
+            print(data)
 
             # Parse the message
             if 'lat' in data: # Real-time API message
@@ -55,6 +51,7 @@ if __name__ == '__main__':
             # Press the stop button
             if trip.stop_at_next():
                 rpi.press_stop_button()
+
     except:
         # In the case of an exception, turn all RPi pins off, otherwise they might stay on after program termination
         rpi.cleanup()

@@ -42,6 +42,15 @@ def hook(dct):
 
 
 def get_graphql_data(trip):
+    """
+    Fetches the GraphQL data for the current trip from the HSL GraphQL API.
+    The trip must be populated with real time data from HSL, which is used
+    to make a GraphQL query.
+    :param trip: A Trip object.
+    :return: The trip updated with GraphQL data about the trip.
+    :raise: ValueError if the query returns null. This means the query was
+    most likely invalid.
+    """
     query = """{{
       fuzzyTrip(route: "HSL:{0}", direction: {1}, date: "{2}", time: {3})
         {{
@@ -67,7 +76,6 @@ def get_graphql_data(trip):
     r.raise_for_status()    # Let the controller handle that
     d = json.loads(r.text, object_hook=hook)
     if d is not None:
-        #print(d)
         trip.copy_data(d)
     else:
         raise ValueError("Data not received from GraphQL API")
