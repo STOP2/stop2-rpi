@@ -6,6 +6,8 @@ Tracks the vehicles's location through the Digitransit API, listens to MQTT mess
 
 Has no UI visible to the user, but can be connected to the vehicle's STOP button via the RPi IO pins.
 
+Requires the `RPi.GPIO` library when running on a Raspberry Pi. It is not included in `requirements.txt` as it cannot be installed on non-ARM devices. It should be installed by default on Raspbian.
+
 ## How to run
 
 - `pip install -r requirements.txt`

@@ -1,5 +1,5 @@
 from threads import MQTTListener, LocationFetcher
-import atexit
+import time
 from api import get_graphql_data, get_rt_data
 from rpi import RPIController
 from queue import Queue
@@ -10,11 +10,10 @@ config = Config()
 def exit_handler():
     """
     When exiting the program, clean up.
+    Does not hold any MQTT stuff, we're using last will for that
     :return: Nothing.
     """
     rpi.cleanup()  # Turn all RPi pins off, otherwise they might stay on after program termination
-    m.disconnect_message()  # Send a disconnect message to the backend
-    print("ahah")
 
 # Initialization
 if __name__ == '__main__':

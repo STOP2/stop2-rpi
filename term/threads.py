@@ -20,6 +20,10 @@ class MQTTListener(threading.Thread):
         self.mqttc = mqtt.Client()
         self.mqttc.on_connect = self.on_connect(topic)
         self.mqttc.on_message = self.on_message(queue)
+        self.mqttc.on_publish = self.on_publish
+        self.mqttc.on_disconnect = self.on_disconnect
+        # Set the last will in case of disconnect
+        self.mqttc.will_set(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "stop", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }', 1)
 
     def on_message(self, queue):
         """
@@ -47,15 +51,13 @@ class MQTTListener(threading.Thread):
         :param gtfsId: The trip's ID
         :return: Nothing.
         """
-        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "start", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }')
+        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "start", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }', 1)
 
-    def disconnect_message(self):
-        """
-        When stopping MQTT listening, inform the backend
-        :param gtfsId: The trip's ID
-        :return: Nothing.
-        """
-        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "stop", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }')
+    def on_publish(self, client, userdata, mid):
+        pass
+
+    def on_disconnect(self, client, userdata, rc):
+        pass
 
     def run(self):
         """

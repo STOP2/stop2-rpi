@@ -1,7 +1,7 @@
 import math
 import datetime
-import types
-import time
+import os
+import sys
 from config import Config
 config = Config()
 
@@ -296,8 +296,9 @@ class Trip:
             #raise PositioningError("Can't determine position on route")
 
         if self.update_stop_index(loc) == -1:
-            pass
-            #raise PositioningError("Can't determine next stop on route")
+            if config.DEBUG_MODE:
+                pass
+                #raise PositioningError("Can't determine next stop on route")
 
         if 'next' in data.keys() and data['next'] != 'undefined':
             # TODO: geometry.update_loc(prev_stop_loc)?
