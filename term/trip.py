@@ -352,7 +352,7 @@ class Trip:
 
     def stop_at_next(self):
         """
-        Determines whether a stop should be made on the next bus stop. That is,
+        Determines whether the vehicle should stop at the next stop. That is,
         if the current location is past the halfway point between the most
         recently passed stop and the next stop and there are stop requests for
         the next stop.

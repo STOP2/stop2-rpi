@@ -5,12 +5,6 @@ from queue import Queue
 from config import Config
 config = Config()
 
-# Load a mock of Raspberry Pi controller if not running on RPi
-if config.RPI_MODE == True: # Has to be "== True", simplified form does not work for some reason
-    from rpi import RPIController
-else:
-    from mock_rpi import RPIController
-
 # Initialization
 if __name__ == '__main__':
 
