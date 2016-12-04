@@ -19,6 +19,7 @@ try:
         def press_stop_button(self, stop):
             """
             Turn on the pin that activates the STOP button
+            :param: The next stop's ID
             :return: Nothing.
             """
             if self.last_stop is not stop:
