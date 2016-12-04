@@ -5,14 +5,14 @@ from config import Config
 config = Config()
 
 # Load a mock of Raspberry Pi controller if not running on RPi
-if config.RPI_MODE == True:
+if config.RPI_MODE == True: # Has to be "== True", simplified form does not work for some reason
     from rpi import RPIController
 else:
     from mock_rpi import RPIController
 
 
+# Initialization
 if __name__ == '__main__':
-    # Initialization
 
     # Create trip
     try:
@@ -56,5 +56,5 @@ if __name__ == '__main__':
             if trip.stop_at_next():
                 rpi.press_stop_button()
     except:
-        # In the case of an exception, clean up the RPi pins
+        # In the case of an exception, turn all RPi pins off, otherwise they might stay on after program termination
         rpi.cleanup()
