@@ -49,3 +49,5 @@ if __name__ == '__main__':
     except:
         # In the case of an exception, turn all RPi pins off, otherwise they might stay on after program termination
         rpi.cleanup()
+        # Send a disconnect message to the backend
+        m.disconnect_message()

@@ -3,6 +3,8 @@ import paho.mqtt.client as mqtt
 from api import get_rt_data
 import time
 import json
+from config import Config
+config = Config()
 
 
 class MQTTListener(threading.Thread):
@@ -35,7 +37,14 @@ class MQTTListener(threading.Thread):
         def f(client, userdata, flags, rc):
             print("Connected MQTT with result code " + str(rc) + ", subscribing to " + topic)
             client.subscribe(topic)
+            self.connect_message()
         return f
+
+    def connect_message(self):
+        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "start", "veh_id": "' + config.VEH_ID + '" }')
+
+    def disconnect_message(self):
+        self.mqttc.publish(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "stop", "veh_id": "' + config.VEH_ID + '" }')
 
     def run(self):
         """

@@ -15,12 +15,12 @@ class Config:
         self.HSL_API = config.get('API', 'HSL_API')
         self.MQTT_BROKER = config.get('API', 'MQTT_BROKER')
         self.MQTT_CHANNEL = config.get('API', 'MQTT_CHANNEL')
+        self.MQTT_SUBSCRIPTION_CHANNEL = config.get('API', 'MQTT_SUBSCRIPTION_CHANNEL')
 
         # Vehicle specific configuration
         self.VEH_ID = config.get('Vehicle', 'VEH_ID')
 
         # Other values
         self.DEBUG_MODE = config.get('Others', 'DEBUG_MODE')
-        self.RPI_MODE = config.get('Others', 'RPI_MODE')
         self.UPDATE_INTERVAL = config.get('Others', 'UPDATE_INTERVAL')
         self.DEVIATION = float(config.get('Others', 'DEVIATION'))
