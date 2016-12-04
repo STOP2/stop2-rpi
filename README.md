@@ -15,7 +15,7 @@ Has no UI visible to the user, but can be connected to the vehicle's STOP button
 ## Files
 
 The source files are in the `term` folder.
-- `api.py` - Connections to HSL apis
+- `api.py` - Connections to apis
 - `config.py` - Configuration reader
 - `main.py` - Entrypoint and main loop
 - `mock_rpi.py` - Simulates the Raspberry Pi IO interface when not actually running on the RPi
@@ -39,4 +39,4 @@ The application can be configured by using the `config.ini` file. Sections:
 
 ![pins](https://github.com/STOP2/stop2-rpi/blob/master/pins.png)
 
-The pin number 18 (BCM pinout) is used for output. In the above image an RGB LED is used to simulate the STOP button light (actual configuration beyond flipping the pin on is up to HSL).
+The pin number 18 (BCM pinout) is used for output. In the above image an RGB LED is used to simulate the STOP button light (actual configuration beyond flipping the pin on is up to the implementor).
