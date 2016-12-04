@@ -23,6 +23,7 @@ if __name__ == '__main__':
     m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL + "/" + config.VEH_ID)
     m.setDaemon(True)
     m.start()
+    m.connect_message(trip.gtfsId)
 
     # Start real time api caller in its own thread
     l = LocationFetcher(q, str(config.VEH_ID), 4)
@@ -50,4 +51,4 @@ if __name__ == '__main__':
         # In the case of an exception, turn all RPi pins off, otherwise they might stay on after program termination
         rpi.cleanup()
         # Send a disconnect message to the backend
-        m.disconnect_message()
+        m.disconnect_message(trip.gtfsId)
