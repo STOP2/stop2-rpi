@@ -132,7 +132,7 @@ class Geometry:
             self.index = i
             # FIXME: remove
             if config.DEBUG_MODE:
-                print("======> %f, %f" % (pt[0], pt[1]))
+                print("======> %f, %f" % (pt[1], pt[0]))
         return ret
 
     def reset(self):
@@ -308,7 +308,7 @@ class Trip:
                 self.on_route = True
                 # FIXME: remove
                 if config.DEBUG_MODE:
-                    print("STARTING TRIP")
+                    print("ON ROUTE")
             else:
                 self.geometry.reset()
                 self.stop_index = 0
@@ -367,6 +367,11 @@ class Trip:
                 [pr['lon'], pr['lat']], [nxt['lon'], nxt['lat']], [self.long, self.lat]):
             return True
         return False
+
+    def has_reached_end(self):
+        return self.stop_index == len(self.stops) - 1 and \
+            self.geometry.is_within_radius([self.long, self.lat],
+                                           self.stoplocs[-1])
 
     def date(self):
         """

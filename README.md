@@ -34,7 +34,7 @@ The application can be configured by using the `config.ini` file. Sections:
   - `VEH_ID` - Vehicle ID. The vehicle's unique identifier. The only setting that has to be edited in production.
 - `Others` - Other values used by the application
   - `DEBUG_MODE` - Enables additional debug prints
-  - `UPDATE_INTERVAL` - How often the real time API is polled in milliseconds
+  - `UPDATE_INTERVAL` - How often the real time API is polled in seconds
   - `DEVIATION` - Deviation setting for `Geometry`
   - `BUTTON_PRESS_DURATION` - How long the button should be kept pressed in seconds
 

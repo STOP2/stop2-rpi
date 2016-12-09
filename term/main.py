@@ -21,6 +21,7 @@ if __name__ == '__main__':
     trip = get_rt_data(str(config.VEH_ID))[0]
     trip = get_graphql_data(trip)
     trip.init()
+    print("Trip ID: %s" % (trip.gtfsId))
 
     # Create Raspberry Pi controller
     rpi = RPIController()
@@ -29,12 +30,12 @@ if __name__ == '__main__':
     q = Queue()
 
     # Start MQTT listener in its own thread
-    m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL + "/" + config.VEH_ID, trip.gtfsId)
+    m = MQTTListener(q, config.MQTT_BROKER, config.MQTT_CHANNEL + "/" + trip.gtfsId, trip.gtfsId)
     m.setDaemon(True)
     m.start()
 
     # Start real time api caller in its own thread
-    l = LocationFetcher(q, str(config.VEH_ID), 4)
+    l = LocationFetcher(q, str(config.VEH_ID), int(config.UPDATE_INTERVAL))
     l.setDaemon(True)
     l.start()
 
@@ -43,17 +44,19 @@ if __name__ == '__main__':
         while True:
             # Get the next message from the queue
             data = q.get()
-            print(data)
 
             # Parse the message
             if 'lat' in data: # Real-time API message
+                print("%f,%f" % (data['lat'], data['long']))
                 trip.update_loc(data)
             elif 'stop_ids' in data: # MQTT message
+                print(data)
                 trip.update_stop_reqs(data)
 
             # Press the stop button
             if trip.stop_at_next():
                 rpi.press_stop_button(trip.next_stop())
+
 
     finally:
         # In the case of an exception, perform cleanup

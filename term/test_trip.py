@@ -1091,6 +1091,18 @@ class TripTestCase(unittest.TestCase):
         self.trip.update_loc({ "long": 24.9485405, "lat": 60.1725941})
         self.assertTrue(self.trip.stop_at_next())
 
+    def test_has_reached_end(self):
+        # Near the end, but not quite there yet:
+        self.trip.update_loc({"lat": 60.2763234, "long": 25.0342852})
+        self.assertTrue(self.trip.on_route)
+        self.assertFalse(self.trip.has_reached_end())
+        self.trip.update_loc({"long": 25.0349007, "lat": 60.2759001})
+        self.assertFalse(self.trip.has_reached_end())
+
+        self.trip.update_loc({"long": 25.0349464, "lat":60.2754702})
+        self.assertTrue(self.trip.has_reached_end())
+
+
 def timestamp2time(t):
     d = datetime.datetime.fromtimestamp(t)
     return "%02d%02d" % (d.hour, d.minute)
