@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from httmock import urlmatch, HTTMock
-from api import get_rt_data, get_graphql_data
+from api import get_rt_data, get_graphql_data, NetworkError, get_trip_data
 import trip
 
 rt_resp = """
@@ -9114,7 +9114,7 @@ gql_resp = """
     }
   }
 }"""
-t = trip.Trip({
+d = {
       "desi": "1075",
       "dir": "1",
       "oper": "XXX",
@@ -9130,8 +9130,7 @@ t = trip.Trip({
       "jrn": "XXX",
       "line": "1075",
       "start": "1053",
-      "on_route": False
-    })
+    }
 
 
 class RealTimeAPITestCase(unittest.TestCase):
@@ -9143,19 +9142,22 @@ class RealTimeAPITestCase(unittest.TestCase):
         with HTTMock(hsl_rt_mock):
             res = get_rt_data('1215')
             self.assertEqual(len(res), 1)
-            self.assertEqual(res[0].lat, 0)
-            self.assertEqual(res[0].tst, "2016-11-22T09:02:48.073Z")
-            self.assertEqual(res[0], t)
+            self.assertEqual(res[0]["dir"], "0")
+            self.assertEqual(res[0]["lat"], 0)
+            self.assertEqual(res[0]["tst"], "2016-11-22T09:02:48.073Z")
 
+
+class GraphQLFetchTest(unittest.TestCase):
     def test_graphql(self):
+
         @urlmatch(netloc=r'.*api\.digitransit\.fi')
         def digitransit_mock(url, request):
             return gql_resp
 
         with HTTMock(digitransit_mock):
-            tr = get_graphql_data(t)
-            self.assertEqual(tr.gtfsId, "HSL:1075_20161110_Ma_1_1442")
-
+            tr = get_graphql_data(d)
+            self.assertEqual(tr["gtfsId"], "HSL:1075_20161110_Ma_1_1442")
+            self.assertTrue("geometry" in tr.keys())
 
     def test_graphql_ex(self):
         @urlmatch(netloc=r'.*api\.digitransit\.fi')
@@ -9163,8 +9165,20 @@ class RealTimeAPITestCase(unittest.TestCase):
             return """{ "data": { "fuzzyTrip": null} }"""
 
         with HTTMock(digitransit_mock):
-            with self.assertRaises(ValueError):
-                tr = get_graphql_data(t)
+            with self.assertRaises(NetworkError):
+                tr = get_graphql_data(d)
+
+class GetTripDataTest(unittest.TestCase):
+    def test_get_trip_data(self):
+        @urlmatch(netloc=r'.*dev\.hsl\.fi')
+        def hsl_rt_mock(url, request):
+            return rt_resp
+
+        with HTTMock(hsl_rt_mock):
+            with self.assertRaises(NetworkError):
+                d = get_trip_data('foo')
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -23,11 +23,13 @@ class MQTTListener(threading.Thread):
         self.mqttc.on_publish = self.on_publish
         self.mqttc.on_disconnect = self.on_disconnect
         # Set the last will in case of disconnect
-        self.mqttc.will_set(config.MQTT_SUBSCRIPTION_CHANNEL, '{ "status": "stop", "veh_id": "' + config.VEH_ID + '", "gtfsId": "' + self.gtfsId + '" }', 1)
+        self.mqttc.will_set(config.MQTT_SUBSCRIPTION_CHANNEL,
+                            '{ "status": "stop", "veh_id": "' + config.VEH_ID +
+                            '", "gtfsId": "' + self.gtfsId + '" }', 1)
 
     def on_message(self, queue):
         """
-        When the listener hears a message, put it in the main queue
+        Creates the on_message event hadler.
         :return: Function.
         """
         def f(client, userdata, msg):
@@ -36,11 +38,11 @@ class MQTTListener(threading.Thread):
 
     def on_connect(self, topic):
         """
-        Subscribe to the correct channel when connected to the broker
+        Creates the on_connect event handler.
         :return: Function.
         """
         def f(client, userdata, flags, rc):
-            print("Connected MQTT with result code " + str(rc) + ", subscribing to " + topic)
+            print("Connected to MQTT broker, result code: " + str(rc) + ", subscribing to " + topic)
             client.subscribe(topic)
             self.connect_message()
         return f
@@ -67,6 +69,9 @@ class MQTTListener(threading.Thread):
         self.mqttc.connect(self.host)
         self.mqttc.loop_forever()
 
+    def stop(self):
+        self.mqttc.disconnect()
+
 
 class LocationFetcher(threading.Thread):
     """
@@ -78,14 +83,22 @@ class LocationFetcher(threading.Thread):
         self.vehid = vehid
         self.queue = queue
         self.interval = poll_int
+        self.keep_on = True
+
+    def stop(self):
+        """
+        Breaks ou
+        :return:
+        """
+        self.keep_on = False
 
     def run(self):
         """
-        Start polling the real-time api
+        Starts polling the real-time api
         :return: Nothing.
         """
-        while True:
+        while self.keep_on:
             d = get_rt_data(veh_id=self.vehid)
             if len(d) > 0:
-                self.queue.put({"veh": d[0].veh, "lat": d[0].lat, "long": d[0].long, "tst": d[0].tst, "start": d[0].start, "dir": d[0].dir})
+                self.queue.put(d[0])
             time.sleep(self.interval)

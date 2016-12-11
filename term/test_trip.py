@@ -808,9 +808,6 @@ def hook(dct):
         return dct["data"]
     elif 'fuzzyTrip' in dct:
         return dct["fuzzyTrip"]
-    elif 'geometry' in dct:
-        dct['geometry'] = Geometry(dct['geometry'])
-        return dct
     return dct
 
 
@@ -818,8 +815,7 @@ class GeometryTestCase(unittest.TestCase):
     def setUp(self):
         self.geom = Geometry(testdata)
         self.graphql = json.loads(graphql, object_hook=hook)
-
-        self.trip = Trip({
+        d = {
             "desi": "1075",
             "dir": "1",
             "oper": "XXX",
@@ -833,9 +829,20 @@ class GeometryTestCase(unittest.TestCase):
             "oday": "XXX",
             "jrn": "XXX",
             "line": "1075",
-            "start": "1442"})
-        self.trip.copy_data(self.graphql)
-        self.trip.init()
+            "start": "1442"
+        }
+        d.update(self.graphql)
+        self.trip = Trip(d)
+
+    def test_eq(self):
+        g1 = Geometry(testdata)
+        g2 = Geometry(testdata)
+        self.assertTrue(g1 == g2)
+        g1 = Geometry([[1,2], [3,5]])
+        g2 = Geometry([[1,2], [3,4]])
+        self.assertFalse(g1 == g2)
+        g2 = Geometry([[1, 2], [3, 4], [4, 5]])
+        self.assertFalse(g1 == g2)
 
     def test_norm(self):
         self.assertEqual(self.geom.norm([ 25.035327795074164, 60.27532190185115 ]), 65.26777204852783)
@@ -936,8 +943,7 @@ class GeometryTestCase(unittest.TestCase):
 class TripTestCase(unittest.TestCase):
     def setUp(self):
         self.graphql = json.loads(graphql, object_hook=hook)
-
-        self.trip = Trip({
+        d = {
             "desi": "1075",
             "dir": "1",
             "oper": "XXX",
@@ -951,27 +957,13 @@ class TripTestCase(unittest.TestCase):
             "oday": "XXX",
             "jrn": "XXX",
             "line": "1075",
-            "start": "1442"})
-        self.trip.copy_data(self.graphql)
-        self.trip.init()
+            "start": "1442"}
+        d.update(self.graphql)
+        self.trip = Trip(d)
+        #self.trip.copy_data(self.graphql)
 
-        self.trip2 = Trip({
-            "desi": "1075",
-            "dir": "1",
-            "oper": "XXX",
-            "veh": "1208",
-            "tst": "2016-11-21T12:40:52.659Z",
-            "tsi": 1479732052,
-            "spd": 0,
-            "lat": 60.17195,
-            "long": 24.94316,
-            "next": '1234567',
-            "oday": "XXX",
-            "jrn": "XXX",
-            "line": "1075",
-            "start": "1442"})
-        self.trip2.copy_data(self.graphql)
-        self.trip2.init()
+        self.trip2 = Trip(d)
+        #self.trip2.copy_data(self.graphql)
 
     def test_copy(self):
         self.assertEqual(60.17195, self.trip.lat)
@@ -990,14 +982,6 @@ class TripTestCase(unittest.TestCase):
         self.assertTrue(self.trip == self.trip2)
         self.trip2.dir = "0"
         self.assertFalse(self.trip == self.trip2)
-
-    def test_init(self):
-        self.trip.init()
-        self.assertEqual(self.trip.next, "HSL:1234567")
-        self.assertEqual(len(self.trip.stops), 36)
-        self.assertEqual(len(self.trip.stoplocs), 36)
-        for i in range(36):
-            self.assertEqual(self.trip.stops[i]["passengers"], 0)
 
     def test_update_stop_reqs(self):
         self.trip.stops = stops

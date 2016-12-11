@@ -9,6 +9,7 @@ config = Config()
 class PositioningError(Exception):
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
@@ -23,6 +24,14 @@ class Geometry:
     def __init__(self, data):
         self.data = data
         self.index = 0
+
+    def __eq__(self, other):
+        if len(self.data) != len(other.data):
+            return False
+        for i in range(len(self.data)):
+            if self.data[i] != other.data[i]:
+                return False
+        return True
 
     def located_vector(self, p1, p2):
         """
@@ -132,7 +141,7 @@ class Geometry:
             self.index = i
             # FIXME: remove
             if config.DEBUG_MODE:
-                print("======> %f, %f" % (pt[1], pt[0]))
+                print("======> %f,%f" % (pt[1], pt[0]))
         return ret
 
     def reset(self):
@@ -171,6 +180,12 @@ class Trip:
         self.stop_index = 0
         self.stoplocs = []
 
+        for s in self.stops:
+            self.stoplocs.append([s["lon"], s["lat"]])
+            s["passengers"] = 0
+        if self.next != 'undefined' and not self.next.startswith("HSL"):
+            self.next = "HSL:" + self.next
+
     def __eq__(self, other):
         """
         Overloads the '=' operator.
@@ -181,18 +196,22 @@ class Trip:
             if attr.startswith('__') or callable(getattr(self, attr)):
                 continue
             if getattr(self, attr) != getattr(other, attr):
+                print('##### attr %s not equal' % attr)
                 return False
         return True
 
-    def copy_data(self, dic):
+    def copy_data(self, dct):
         """
         Copies the contents of the dictionary dic into the trip itself turning
             the keys into attributes.
-        :param dic: The dictionary containing trip data.
+        :param dct: The dictionary containing trip data.
         :return: Nothing.
         """
-        for k in dic.keys():
-            self.__setattr__(k, dic[k])
+        for k in dct.keys():
+            if k == "geometry":
+                self.__setattr__(k, Geometry(dct[k]))
+            else:
+                self.__setattr__(k, dct[k])
 
     def start_in_secs(self):
         """
@@ -214,19 +233,6 @@ class Trip:
         :return:  Integer representing the str in seconds.
         """
         return (int(str[:-2]) * 60 + int(str[-2:])) * 60
-
-    def init(self):
-        """
-        Initialises the trip. Must be called after populating the trip with
-        data and before using the trip.
-        :return: Nothing.
-        """
-        self.stoplocs = []
-        for s in self.stops:
-            self.stoplocs.append([s["lon"], s["lat"]])
-            s["passengers"] = 0
-        if self.next != 'undefined' and not self.next.startswith("HSL"):
-            self.next = "HSL:" + self.next
 
     def next_stop(self):
         """
@@ -362,9 +368,11 @@ class Trip:
         if not self.on_route:
             return False
         pr = self.prev_stop()
+        prloc = [pr['lon'], pr['lat']]
         nxt = self.next_stop()
+        nxtloc = [nxt['lon'], nxt['lat']]
         if nxt['passengers'] > 0 and self.geometry.past_halfway_between(
-                [pr['lon'], pr['lat']], [nxt['lon'], nxt['lat']], [self.long, self.lat]):
+            prloc, nxtloc, [self.long, self.lat]):
             return True
         return False
 
@@ -374,10 +382,14 @@ class Trip:
                                            self.stoplocs[-1])
 
     def date(self):
+        return Trip.trip_date(self.tst)
+
+    @staticmethod
+    def trip_date(timestamp):
         """
         Returns the date of the trip as a string. The format is YYYYMMDD.
         :return: The date string.
         """
         # "tst": "2016-11-21T12:40:52.659Z"
-        d = datetime.datetime.strptime(self.tst, "%Y-%m-%dT%H:%M:%S.%fZ")
+        d = datetime.datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%fZ")
         return "%d%d%02d" % (d.year, d.month, d.day)

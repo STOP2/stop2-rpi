@@ -1,30 +1,20 @@
 from threads import MQTTListener, LocationFetcher
-from api import get_graphql_data, get_rt_data
+from api import get_trip_data
 from rpi import RPIController
+from trip import Trip
 from queue import Queue
 from config import Config
 config = Config()
 
 
-def exit_handler():
-    """
-    When exiting the program, clean up.
-    Does not hold any MQTT stuff, we're using last will for that
-    :return: Nothing.
-    """
-    rpi.cleanup()  # Turn all RPi pins off, otherwise they might stay on after program termination
-
 # Initialization
 if __name__ == '__main__':
-
-    # Create trip
-    trip = get_rt_data(str(config.VEH_ID))[0]
-    trip = get_graphql_data(trip)
-    trip.init()
-    print("Trip ID: %s" % (trip.gtfsId))
-
     # Create Raspberry Pi controller
     rpi = RPIController()
+
+    # Create trip
+    trip = Trip(get_trip_data(str(config.VEH_ID)))
+    print("Trip ID: %s" % (trip.gtfsId))
 
     # Queue is used for all MQTT messages and API call results
     q = Queue()
@@ -40,24 +30,25 @@ if __name__ == '__main__':
     l.start()
 
     # Main loop
-    try:
-        while True:
-            # Get the next message from the queue
-            data = q.get()
+    while True:
+        # Get the next message from the queue
+        data = q.get()
 
-            # Parse the message
-            if 'lat' in data: # Real-time API message
-                print("%f,%f" % (data['lat'], data['long']))
-                trip.update_loc(data)
-            elif 'stop_ids' in data: # MQTT message
-                print(data)
-                trip.update_stop_reqs(data)
+        # Parse the message
+        if 'lat' in data: # Real-time API message
+            print("%f,%f" % (data['lat'], data['long']))
+            trip.update_loc(data)
+        elif 'stop_ids' in data: # MQTT message
+            print(data)
+            trip.update_stop_reqs(data)
 
-            # Press the stop button
-            if trip.stop_at_next():
-                rpi.press_stop_button(trip.next_stop())
-
-
-    finally:
-        # In the case of an exception, perform cleanup
-        exit_handler()
+        # Press the stop button
+        if trip.stop_at_next():
+            rpi.press_stop_button(trip.next_stop())
+        if trip.has_reached_end():
+            l.stop()
+            l.join()
+            m.stop()
+            m.join()
+            rpi.cleanup()
+            break
