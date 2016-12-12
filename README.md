@@ -11,7 +11,8 @@ Requires the `RPi.GPIO` library when running on a Raspberry Pi. It is not includ
 ## How to run
 
 - `pip install -r requirements.txt`
-- `. venv/bin/activate`
+- `virtualenv -p python3 venv`
+- `. venv/bin/activate
 - `cd term`
 - `python main.py`
 
