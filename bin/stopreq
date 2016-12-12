@@ -1,0 +1,33 @@
+#!/bin/sh -
+#
+# stopreq: Send a stop request to the stop2.0 dev backend server
+#
+# Usage: stopreq TRIP_ID STOP_ID
+
+URL=http://stop20.herokuapp.com/stoprequests
+
+progname=`basename "$0"`
+
+err() {
+        echo "${progname}: $1" 1>&2
+        exit 1
+}
+
+usage() {
+        if [ ! -z "$1" ]; then
+                echo "${progname}: $1" 1>&2
+        fi
+        echo "usage: $progname TRIP_ID STOP_ID" 1>&2
+        exit 1
+}
+
+if ! [ `which curl` ]; then
+	err "curl not installed"
+fi
+
+if [ $# -ne 2 ]; then
+	usage
+fi
+
+curl -H "Content-Type: application/json" \
+  -d "{\"trip_id\": \"${1}\", \"stop_id\": \"${2}\", \"device_id\":\"123456\" }" ${URL}

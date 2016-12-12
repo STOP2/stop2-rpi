@@ -1,0 +1,54 @@
+#!/bin/sh -
+
+progname=`basename "$0"`
+hsl_int() {
+	echo $1 |
+	  sed -r -e '/^(506|512K|550|550B|552|554|554K)$/s!^!2!'	\
+		-e 'tdone'	\
+		-e '/^(415|415N|451|519|519A|520|560|611|611B|614|615|615T|615TK|615V|615VK|620|665|665A)$/s/^/4/'	\
+		-e 'tdone'	\
+		-e '/^(61|61V)$/s/^/40/'	\
+		-e 'tdone'	\
+		-e '/^(1|1A|2|2X|3|3X|4|4T|5|6|6T|6X|7A|7B|7X|8|9|9X)$/s/^/100/'	\
+		-e 'tdone'	\
+		-e '/^([0-9][0-9])/s/^/10/' \
+		-e ':done'
+}
+
+err() {
+        echo "${progname}: $1" 1>&2
+        exit 1
+}
+
+usage() {
+        if [ ! -z "$1" ]; then
+                echo "${progname}: $1" 1>&2
+        fi
+        echo "usage: $progname [BUS_NUMBER]" 1>&2
+        exit 1
+}
+
+if ! [ `which jq` ]; then
+	err "no jq installed"
+fi
+if ! [ `which curl` ]; then
+	err "no curl installed"
+fi
+
+case $# in
+	0)
+		curl -s http://dev.hsl.fi/hfp/journey/bus/ |
+		jq '.'
+		;;
+	1)
+		LINE=`hsl_int ${1}`
+		curl -s http://dev.hsl.fi/hfp/journey/bus/ |
+		   jq -c ".[].VP | { veh: .veh, line: .line, dir: .dir, start: .start } | select(.line == \"$LINE\")"
+		echo $JQ
+		;;
+	*)
+		usage
+		;;
+esac
+ 
+
