@@ -271,7 +271,8 @@ class Trip:
         to the timetables at the current moment.
         :return: True if departure time is past, False otherwise
         """
-        d = datetime.datetime.now()
+        tz = datetime.timezone(datetime.timedelta(hours=2))
+        d = datetime.datetime.now(tz)
         t = Trip.secs_past_midnight("%02d%02d" % (d.hour, d.minute))
         return t - self.start_in_secs() >= 0
 
@@ -299,12 +300,12 @@ class Trip:
         if self.geometry.update_loc(loc) < 0:
             #raise PositioningError("Can't determine position on route")
             if config.DEBUG_MODE:
-                print("Can't determine position on route, loc: " + loc)
+                print("Can't determine position on route, loc: " + str(loc))
 
         if self.update_stop_index(loc) == -1:
             # raise PositioningError("Can't determine next stop on route")
             if config.DEBUG_MODE:
-                print("Can't determine next stop on route, loc: " + loc)
+                print("Can't determine next stop on route, loc: " + str(loc))
 
         if 'next' in data.keys() and data['next'] != 'undefined':
             # TODO: geometry.update_loc(prev_stop_loc)?
