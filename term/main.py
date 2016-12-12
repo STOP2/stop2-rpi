@@ -32,6 +32,8 @@ if __name__ == '__main__':
     # Main loop
     while True:
         # Get the next message from the queue
+        # The API fetcher and the MQTT listener push messages into the queue
+        # Those are handled here
         data = q.get()
 
         # Parse the message
@@ -45,6 +47,8 @@ if __name__ == '__main__':
         # Press the stop button
         if trip.stop_at_next():
             rpi.press_stop_button(trip.next_stop())
+
+        # Reset if reached last stop
         if trip.has_reached_end():
             l.stop()
             l.join()

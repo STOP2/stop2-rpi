@@ -2,7 +2,7 @@
 
 The current prototype of the driver client running on a Raspberry Pi (the old JavaScript one that can be used as an additional visualizer can be found here: https://github.com/STOP2/stop2.0-driver-client). 
 
-Tracks the vehicles's location through the Digitransit API, listens to MQTT messages from the backend that tell how many passengers are waiting on the stops and presses the vehicle's stop button when nearing a stop with passengers waiting. 
+Tracks the vehicles's location through the Digitransit API, listens to MQTT messages from the backend that tell if there are passengers waiting and presses the vehicle's stop button when nearing a stop with passengers. 
 
 Has no UI visible to the user, but can be connected to the vehicle's STOP button via the RPi IO pins.
 
@@ -11,8 +11,10 @@ Requires the `RPi.GPIO` library when running on a Raspberry Pi. It is not includ
 ## How to run
 
 - `pip install -r requirements.txt`
+- `virtualenv -p python3 venv`
+- `. venv/bin/activate
 - `cd term`
-- `python3 main.py`
+- `python main.py`
 
 ## Files
 
