@@ -196,7 +196,6 @@ class Trip:
             if attr.startswith('__') or callable(getattr(self, attr)):
                 continue
             if getattr(self, attr) != getattr(other, attr):
-                print('##### attr %s not equal' % attr)
                 return False
         return True
 
@@ -298,13 +297,14 @@ class Trip:
         loc = [self.long, self.lat]
 
         if self.geometry.update_loc(loc) < 0:
-            pass  # FIXME: log error instead?
             #raise PositioningError("Can't determine position on route")
+            if config.DEBUG_MODE:
+                print("Can't determine position on route, loc: " + loc)
 
         if self.update_stop_index(loc) == -1:
+            # raise PositioningError("Can't determine next stop on route")
             if config.DEBUG_MODE:
-                pass
-                #raise PositioningError("Can't determine next stop on route")
+                print("Can't determine next stop on route, loc: " + loc)
 
         if 'next' in data.keys() and data['next'] != 'undefined':
             # TODO: geometry.update_loc(prev_stop_loc)?

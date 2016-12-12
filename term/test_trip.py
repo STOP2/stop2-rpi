@@ -958,6 +958,7 @@ class TripTestCase(unittest.TestCase):
             "jrn": "XXX",
             "line": "1075",
             "start": "1442"}
+        d['start'] = timestamp2time(datetime.datetime.now().timestamp())
         d.update(self.graphql)
         self.trip = Trip(d)
         #self.trip.copy_data(self.graphql)
@@ -973,7 +974,10 @@ class TripTestCase(unittest.TestCase):
 
 
     def test_start(self):
-        self.assertEqual(self.trip.start_in_secs(), 52920)
+        dt = datetime.datetime.now()
+        secs = ((dt.hour * 60) + dt.minute) * 60
+        self.trip.start = timestamp2time(dt.timestamp())
+        self.assertEqual(self.trip.start_in_secs(), secs)
 
     def test_date(self):
         self.assertEqual(self.trip.date(), '20161121')
