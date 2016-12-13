@@ -1095,7 +1095,8 @@ class TripTestCase(unittest.TestCase):
 
 
 def timestamp2time(t):
-    d = datetime.datetime.fromtimestamp(t)
+    tz = datetime.timezone(datetime.timedelta(hours=2))
+    d = datetime.datetime.fromtimestamp(t, tz=tz)
     return "%02d%02d" % (d.hour, d.minute)
 
 if __name__ == '__main__':
