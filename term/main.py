@@ -1,5 +1,5 @@
 from threads import MQTTListener, LocationFetcher
-from api import get_trip_data
+from api import get_trip_data, NetworkError
 from rpi import RPIController
 from trip import Trip
 from queue import Queue
@@ -13,8 +13,13 @@ if __name__ == '__main__':
     rpi = RPIController()
 
     # Create trip
-    trip = Trip(get_trip_data(str(config.VEH_ID)))
-    print("Trip ID: %s" % (trip.gtfsId))
+    try:
+        trip = Trip(get_trip_data(str(config.VEH_ID)))
+        print("Trip ID: %s" % (trip.gtfsId))
+    except NetworkError as e:
+        print(e)
+        print("exiting")
+        exit()
 
     # Queue is used for all MQTT messages and API call results
     q = Queue()
