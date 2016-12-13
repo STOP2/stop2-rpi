@@ -974,7 +974,8 @@ class TripTestCase(unittest.TestCase):
 
 
     def test_start(self):
-        dt = datetime.datetime.now()
+        tz = datetime.timezone(datetime.timedelta(hours=2))
+        dt = datetime.datetime.now(tz=tz)
         secs = ((dt.hour * 60) + dt.minute) * 60
         self.trip.start = timestamp2time(dt.timestamp())
         self.assertEqual(self.trip.start_in_secs(), secs)
@@ -1005,8 +1006,6 @@ class TripTestCase(unittest.TestCase):
         self.assertTrue(self.trip.past_departure_time())
         self.trip.start = timestamp2time(
             datetime.datetime.now(tz=tz).timestamp() + (5 * 60))
-        print(d)
-        print("TIME: %s" % self.trip.start)
         self.assertFalse(self.trip.past_departure_time())
 
     def test_moving_along(self):
