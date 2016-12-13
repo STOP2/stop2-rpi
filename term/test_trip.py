@@ -999,11 +999,12 @@ class TripTestCase(unittest.TestCase):
             self.assertEqual(self.trip.stops[i]["passengers"], 0)
 
     def test_past_departure_time(self):
-        d = datetime.datetime.now()
+        tz = datetime.timezone(datetime.timedelta(hours=2))
+        d = datetime.datetime.now(tz=tz)
         self.trip.start = "%02d%02d" % (d.hour, d.minute)
         self.assertTrue(self.trip.past_departure_time())
         self.trip.start = timestamp2time(
-            datetime.datetime.now().timestamp() + (5 * 60))
+            datetime.datetime.now(tz=tz).timestamp() + (5 * 60))
         self.assertFalse(self.trip.past_departure_time())
 
     def test_moving_along(self):

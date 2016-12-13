@@ -272,7 +272,7 @@ class Trip:
         :return: True if departure time is past, False otherwise
         """
         tz = datetime.timezone(datetime.timedelta(hours=2))
-        d = datetime.datetime.now(tz)
+        d = datetime.datetime.now(tz=tz)
         t = Trip.secs_past_midnight("%02d%02d" % (d.hour, d.minute))
         return t - self.start_in_secs() >= 0
 
