@@ -1005,6 +1005,7 @@ class TripTestCase(unittest.TestCase):
         self.assertTrue(self.trip.past_departure_time())
         self.trip.start = timestamp2time(
             datetime.datetime.now(tz=tz).timestamp() + (5 * 60))
+        print("TIME: %s" % self.trip.start)
         self.assertFalse(self.trip.past_departure_time())
 
     def test_moving_along(self):
