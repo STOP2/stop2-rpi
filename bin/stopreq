@@ -29,5 +29,6 @@ if [ $# -ne 2 ]; then
 	usage
 fi
 
+RAND=`awk 'BEGIN {srand(); print int(rand() * 100000)}'`
 curl -H "Content-Type: application/json" \
-  -d "{\"trip_id\": \"${1}\", \"stop_id\": \"${2}\", \"device_id\":\"123456\" }" ${URL}
+  -d "{\"trip_id\": \"${1}\", \"stop_id\": \"${2}\", \"device_id\":\"${RAND}\" }" ${URL}
