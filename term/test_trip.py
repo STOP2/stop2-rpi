@@ -967,7 +967,7 @@ class TripTestCase(unittest.TestCase):
         #self.trip2.copy_data(self.graphql)
 
     def test_copy(self):
-        self.assertEqual(60.17195, self.trip.lat)
+        self.assertEqual(60.17195, self.trip.loc[1])
         self.trip.copy_data(self.graphql)
         self.assertEqual(self.trip.tripHeadsign, 'Puistolan asema')
         self.assertTrue(type(self.trip.geometry) is Geometry)
@@ -1009,8 +1009,7 @@ class TripTestCase(unittest.TestCase):
         self.assertFalse(self.trip.past_departure_time())
 
     def test_moving_along(self):
-        self.trip.lat = 60.1705456
-        self.trip.long = 24.9437136
+        self.trip.loc = [24.9437136, 60.1705456]
         self.assertTrue(self.trip.moving_along_route())
 
     def test_update_loc(self):

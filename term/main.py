@@ -17,8 +17,7 @@ if __name__ == '__main__':
         trip = Trip(get_trip_data(str(config.VEH_ID)))
         print("Trip ID: %s" % (trip.gtfsId))
     except NetworkError as e:
-        print(e)
-        print("exiting")
+        print(e.value + ", exiting")
         exit()
 
     # Queue is used for all MQTT messages and API call results

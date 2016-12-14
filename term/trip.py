@@ -206,11 +206,17 @@ class Trip:
         :param dct: The dictionary containing trip data.
         :return: Nothing.
         """
+        loc = [0, 0]
         for k in dct.keys():
             if k == "geometry":
                 self.__setattr__(k, Geometry(dct[k]))
+            elif k == "long":
+                loc[0] = dct[k]
+            elif k == "lat":
+                loc[1] = dct[k]
             else:
                 self.__setattr__(k, dct[k])
+        self.loc = loc
 
     def start_in_secs(self):
         """
@@ -283,7 +289,7 @@ class Trip:
         :return: True if the vehicle has moved enough from the starting point,
         False otherwise.
         """
-        return self.geometry.index_of([self.long, self.lat]) > 3
+        return self.geometry.index_of(self.loc) > 3
 
     def update_loc(self, data):
         """
@@ -293,14 +299,16 @@ class Trip:
             {'lat': num, 'long': num, 'next': str}, where 'next' is the
             HSL id number (without the HSL prefix) of the next stop.
         """
-        self.long = data['long']
-        self.lat = data['lat']
-        loc = [self.long, self.lat]
 
-        if self.geometry.update_loc(loc) < 0:
+        loc = [data["long"], data["lat"]]
+
+        res = self.geometry.update_loc(loc)
+        if res < 0:
             #raise PositioningError("Can't determine position on route")
             if config.DEBUG_MODE:
                 print("Can't determine position on route, loc: " + str(loc))
+        elif res > 0:
+            self.loc = loc
 
         if self.update_stop_index(loc) == -1:
             # raise PositioningError("Can't determine next stop on route")
@@ -373,14 +381,13 @@ class Trip:
         nxt = self.next_stop()
         nxtloc = [nxt['lon'], nxt['lat']]
         if nxt['passengers'] > 0 and self.geometry.past_halfway_between(
-            prloc, nxtloc, [self.long, self.lat]):
+            prloc, nxtloc, self.loc):
             return True
         return False
 
     def has_reached_end(self):
-        return self.stop_index == len(self.stops) - 1 and \
-            self.geometry.is_within_radius([self.long, self.lat],
-                                           self.stoplocs[-1])
+        return  self.stop_index == len(self.stops) - 1 and \
+                self.geometry.is_within_radius(self.loc, self.stoplocs[-1])
 
     def date(self):
         return Trip.trip_date(self.tst)
