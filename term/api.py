@@ -13,7 +13,11 @@ class NetworkError(Exception):
     def __str__(self):
         return repr(self.value)
 
-
+# The following function uses an http cache of the MQTT broker used to
+# relay the real-time positioning and other data. The real broker can be
+# found on host mqtt.hsl.fi (port 1883) and the topic is the same
+# (/hfp/journey/..) as in the http cache. The http cache is updated ~ every
+# 20 seconds. The MQTT broker gets real-time data.
 def get_rt_data(veh_id='', line=0):
     """
     Fetches real time data from the HSL api. If line is the only parameter
