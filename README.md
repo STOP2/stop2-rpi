@@ -8,6 +8,8 @@ Has no UI visible to the user, but can be connected to the vehicle's STOP button
 
 Requires the `RPi.GPIO` library when running on a Raspberry Pi. It is not included in `requirements.txt` as it cannot be installed on non-ARM devices. It should be installed by default on Raspbian.
 
+[Architecture graphic](https://docs.google.com/drawings/d/1Jcaa1XU18ysLQAvR88YeXyh_2_8C6Us8N0cn3J-wwPE/edit?usp=sharing)
+
 ## How to run
 
 - `pip install -r requirements.txt`
